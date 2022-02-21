@@ -1,12 +1,9 @@
 ﻿using laba1.Drawing;
+using laba1.Ext;
 using laba1.Geometry;
-using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace laba1
@@ -16,6 +13,7 @@ namespace laba1
         readonly PictureBox _picturebox;
         readonly int _width, _height;
         readonly Color _colpoly, _colseg;
+        //readonly int _ptrad;
 
         readonly Polygon _polygon = new Polygon();
         readonly List<Segment> _segments = new List<Segment>();
@@ -23,36 +21,56 @@ namespace laba1
         bool _has_start;
         Vector2 _start;
 
+        void RenderSegment(Bitmap bitmap, Color color, Segment segment)
+        {
+            Bresenham.DrawLine(bitmap, color, segment.Start.ToPoint(), segment.End.ToPoint());
+        }
+
+        /*void RenderVertex(Bitmap bitmap, Color color, Vector2 vertex)
+        {
+            Bresenham.DrawCircle(bitmap, color, vertex.ToPoint(), _ptrad);
+        }*/
+
+        void RenderSegments(Bitmap bitmap, Color color, IEnumerable<Segment> segments)
+        {
+            foreach (var segment in segments)
+            {
+                RenderSegment(bitmap, color, segment);
+                /*RenderVertex(bitmap, color, segment.Start);
+                RenderVertex(bitmap, color, segment.End);*/
+            }
+        }
+
         void Render(IEnumerable<Segment> visible = null)
         {
             var bitmap = new Bitmap(_width, _height);
-            foreach (var segment in _polygon.Segments)
-                Bresenham.DrawLine(bitmap, _colpoly, segment);
-            foreach (var segment in visible ?? _segments)
-                Bresenham.DrawLine(bitmap, _colseg, segment);
+            RenderSegments(bitmap, _colpoly, _polygon.Segments);
+            RenderSegments(bitmap, _colseg, visible ?? _segments);
             _picturebox.Image?.Dispose();
             _picturebox.Image = bitmap;
             _picturebox.Refresh();
         }
 
-        public Scene(PictureBox picturebox, Color poly, Color seg)
+        public Scene(PictureBox picturebox, Color poly, Color seg/*, int rad = 1*/)
         {
             _picturebox = picturebox;
             _width = picturebox.Width;
             _height = picturebox.Height;
+            _picturebox.Image = new Bitmap(_width, _height);
             _colpoly = poly;
             _colseg = seg;
+            //_ptrad = rad;
         }
 
         public void AddPolygonPoint(Point point)
         {
-            _polygon.Add(new Vector2(point.X, point.Y));
+            _polygon.Add(point.ToVector2());
             Render();
         }
 
         public void AddSegmentPoint(Point point)
         {
-            var vertex = new Vector2(point.X, point.Y);
+            var vertex = point.ToVector2();
             if (!_has_start)
             {
                 _start = vertex;
@@ -70,6 +88,15 @@ namespace laba1
             _polygon.RemoveLast();
             Render();
         }
+
+        /*public void RemoveLastSegment()
+        {
+            if (_has_start)
+                _has_start = false;
+            else
+                _segments.RemoveAt(_segments.Count - 1);
+            Render();
+        }*/
 
         public void ApplyCyrusBeck(bool apply = true)
         {

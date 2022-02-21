@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace laba1.Geometry
 {
@@ -15,12 +16,17 @@ namespace laba1.Geometry
         }
 
         /*
-        Точка находится слева от отрезка,
-        если 2d вект. произв. неотрицательно
+        Точка находится:
+            слева от отрезка,
+                если 2d вект. произв. положительно;
+            справа от отрезка,
+                если 2d вект. произв. отрицательно;
+            на отрезке,
+                если 2d вект. произв. равно нулю.
         */
-        public bool OnLeft(Vector2 point)
+        public int OnSide(Vector2 point)
         {
-            return Direction.Cross(point - Start) >= 0;
+            return Math.Sign(Direction.Cross(point - Start));
         }
 
         /*

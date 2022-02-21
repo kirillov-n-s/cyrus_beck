@@ -8,6 +8,7 @@ namespace laba1.Geometry
     {
         #region private
         List<Vector2> _points = new List<Vector2>();
+        int _orient = 0;
 
         bool CyrusBeck(Segment to_clip, out Segment clipped)
         {
@@ -18,19 +19,21 @@ namespace laba1.Geometry
             foreach (var segment in Segments)
             {
                 float t;
-                var dot = Vector2.Dot(segment.Normal, dir);
+                var dot = Vector2.Dot(segment.Normal * _orient, dir);
                 switch (Math.Sign(dot))
                 {
                     case -1:
                         t = to_clip.Intersect(segment);
-                        ta = t > ta ? t : ta;
+                        if (t > ta)
+                            ta = t;
                         break;
                     case +1:
                         t = to_clip.Intersect(segment);
-                        tb = t < tb ? t : tb;
+                        if (t < tb)
+                            tb = t;
                         break;
                     case 0:
-                        if (!segment.OnLeft(to_clip.Start))
+                        if (segment.OnSide(to_clip.Start) != _orient)
                             return false;
                         break;
                 }
@@ -45,17 +48,22 @@ namespace laba1.Geometry
         #region public
         public void Add(Vector2 point)
         {
+            if (Count >= 2 && _orient == 0)
+                _orient = new Segment(_points[Count - 2], _points[Count - 1]).OnSide(point);
             _points.Add(point);
         }
 
         public void RemoveLast()
         {
             _points.RemoveAt(Count - 1);
+            if (Count < 3)
+                _orient = 0;
         }
 
         public void Clear()
         {
             _points.Clear();
+            _orient = 0;
         }
 
         public int Count => _points.Count;
@@ -64,9 +72,9 @@ namespace laba1.Geometry
         {
             get
             {
-                if (Count > 3)
+                if (Count > 3 && _orient != 0)
                     for (int a = Count - 2, b = Count - 1, p = 0; p < Count; a = b, b = p, ++p)
-                        if (!new Segment(_points[a], _points[b]).OnLeft(_points[p]))
+                        if (new Segment(_points[a], _points[b]).OnSide(_points[p]) != _orient)
                             return false;
                 return true;
             }
@@ -84,12 +92,10 @@ namespace laba1.Geometry
 
         public IEnumerable<Segment> CyrusBeck(IEnumerable<Segment> to_clip)
         {
+            if (_orient == 0)
+                return new List<Segment>();
             if (!IsConvex)
-            {
-                _points.Reverse();
-                if (!IsConvex)
-                    throw new ArgumentException("Многоугольник для отсечения Кируса-Бека должен быть выпуклым.");
-            }
+                throw new ArgumentException("Многоугольник для отсечения Кируса-Бека должен быть выпуклым.");
 
             var result = new List<Segment>();
             foreach (var segment in to_clip)

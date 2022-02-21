@@ -32,6 +32,7 @@ namespace laba1
                     catch (Exception ex)
                     {
                         MessageBox.Show(ex.Message, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        _clipped ^= true;
                     }
                     break;
                 case Keys.Space:

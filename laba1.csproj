@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Drawing\Bresenham.cs" />
+    <Compile Include="Ext\PointExt.cs" />
     <Compile Include="Scene.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -57,7 +58,7 @@
     </Compile>
     <Compile Include="Geometry\Polygon.cs" />
     <Compile Include="Geometry\Segment.cs" />
-    <Compile Include="Geometry\Vector2Ext.cs" />
+    <Compile Include="Ext\Vector2Ext.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="MainForm.resx">
