@@ -1,1 +1,1 @@
-University practice in computer graphics: Cyrus-Beck clipping
+University assignment in computer graphics: Cyrus-Beck clipping
